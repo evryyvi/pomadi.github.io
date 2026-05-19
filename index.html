@@ -1,166 +1,3 @@
-// Замените конец файла (начиная с метода setMinDate) на полную версию:
-
-            setMinDate(inputId) {
-                const dateInput = document.getElementById(inputId);
-                if (dateInput) {
-                    const today = new Date();
-                    const tomorrow = new Date(today);
-                    tomorrow.setDate(today.getDate() + 1);
-                    dateInput.min = tomorrow.toISOString().split('T')[0];
-                }
-            }
-            
-            getBookingsForDate(date) {
-                return this.bookings.filter(b => b.date === date && b.status === 'active');
-            }
-            
-            getTimeSlotAvailability(time, date) {
-                const bookings = this.getBookingsForDate(date);
-                const booked = bookings.filter(b => b.time === time).length;
-                const slot = this.timeSlots.find(s => s.time === time);
-                const capacity = slot ? slot.capacity : 5;
-                return {
-                    booked: booked,
-                    available: capacity - booked,
-                    capacity: capacity,
-                    isFull: booked >= capacity
-                };
-            }
-            
-            renderTimeSlots(containerId, dateInputId, selectedTimeInputId) {
-                const container = document.getElementById(containerId);
-                const dateInput = document.getElementById(dateInputId);
-                
-                if (!container || !dateInput) return;
-                
-                const date = dateInput.value;
-                
-                if (!date) {
-                    container.innerHTML = '<p style="grid-column: 1/-1; color: #999; text-align: center;">Сначала выберите дату</p>';
-                    return;
-                }
-                
-                container.innerHTML = '';
-                
-                this.timeSlots.forEach(slot => {
-                    const availability = this.getTimeSlotAvailability(slot.time, date);
-                    const slotDiv = document.createElement('div');
-                    slotDiv.className = 'time-slot';
-                    slotDiv.textContent = `${slot.time} (${availability.available}/${availability.capacity})`;
-                    
-                    if (availability.isFull) {
-                        slotDiv.classList.add('full');
-                        slotDiv.title = 'Все места заняты';
-                    } else if (availability.available <= 2) {
-                        slotDiv.style.borderColor = '#ff9800';
-                        slotDiv.title = `Осталось ${availability.available} мест`;
-                    }
-                    
-                    slotDiv.addEventListener('click', () => {
-                        if (!availability.isFull) {
-                            // Убираем выделение со всех слотов
-                            container.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
-                            // Выделяем выбранный
-                            slotDiv.classList.add('selected');
-                            // Сохраняем выбранное время
-                            document.getElementById(selectedTimeInputId).value = slot.time;
-                            this.selectedTime = slot.time;
-                        }
-                    });
-                    
-                    container.appendChild(slotDiv);
-                });
-            }
-            
-            createBooking() {
-                const fullName = document.getElementById('fullName').value.trim();
-                const email = document.getElementById('email').value.trim();
-                const phone = document.getElementById('phone').value.trim();
-                const date = document.getElementById('courseDate').value;
-                const time = document.getElementById('selectedTime').value;
-                
-                if (!fullName || !email || !date || !time) {
-                    showNotification('❌ Заполните все обязательные поля', 'error');
-                    return;
-                }
-                
-                // Проверка email
-                if (!this.validateEmail(email)) {
-                    showNotification('❌ Неверный формат email', 'error');
-                    return;
-                }
-                
-                // Проверка доступности времени
-                const availability = this.getTimeSlotAvailability(time, date);
-                if (availability.isFull) {
-                    showNotification('❌ На это время нет свободных мест', 'error');
-                    return;
-                }
-                
-                const booking = {
-                    id: Date.now(),
-                    fullName: fullName,
-                    email: email,
-                    phone: phone,
-                    date: date,
-                    time: time,
-                    status: 'active',
-                    createdAt: new Date().toISOString()
-                };
-                
-                this.bookings.push(booking);
-                this.saveBookings();
-                this.renderBookings();
-                this.updateStats();
-                this.resetForm();
-                
-                showNotification('✅ Запись успешно создана!', 'success');
-            }
-            
-            createUserBooking() {
-                const fullName = document.getElementById('userFullName').value.trim();
-                const email = document.getElementById('userEmail').value.trim();
-                const phone = document.getElementById('userPhone').value.trim();
-                const date = document.getElementById('userCourseDate').value;
-                const time = document.getElementById('userSelectedTime').value;
-                
-                if (!fullName || !email || !date || !time) {
-                    showNotification('❌ Заполните все обязательные поля', 'error');
-                    return;
-                }
-                
-                if (!this.validateEmail(email)) {
-                    showNotification('❌ Неверный формат email', 'error');
-                    return;
-                }
-                
-                const availability = this.getTimeSlotAvailability(time, date);
-                if (availability.isFull) {
-                    showNotification('❌ На это время нет свободных мест', 'error');
-                    return;
-                }
-                
-                const booking = {
-                    id: Date.now(),
-                    fullName: fullName,
-                    email: email,
-                    phone: phone,
-                    date: date,
-                    time: time,
-                    status: 'active',
-                    createdAt: new Date().toISOString()
-                };
-                
-                this.bookings.push(booking);
-                this.saveBookings();
-                
-                // Показываем сообщение об успехе
-                document.getElementById('userBookingForm').style.display = 'none';
-                document.getElementById('successMessage').classList.add('show');
-                
-                showNotification('✅ Вы успешно записаны на курс!', 'success');
-            }
-            
             updateBooking() {
                 const fullName = document.getElementById('fullName').value.trim();
                 const email = document.getElementById('email').value.trim();
@@ -252,7 +89,6 @@
                     
                     this.renderTimeSlots('timeSlots', 'courseDate', 'selectedTime');
                     
-                    // Выделяем выбранный слот
                     setTimeout(() => {
                         const slots = document.querySelectorAll('#timeSlots .time-slot');
                         slots.forEach(slot => {
@@ -295,7 +131,6 @@
                 
                 let filteredBookings = [...this.bookings];
                 
-                // Применяем фильтры
                 if (searchText) {
                     filteredBookings = filteredBookings.filter(b => 
                         b.fullName.toLowerCase().includes(searchText) ||
@@ -314,7 +149,6 @@
                     filteredBookings = filteredBookings.filter(b => b.status === 'cancelled');
                 }
                 
-                // Сортируем по дате создания (новые сверху)
                 filteredBookings.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 
                 if (filteredBookings.length === 0) {
@@ -359,7 +193,6 @@
                 const today = new Date().toISOString().split('T')[0];
                 const todayBookings = this.getActiveBookings().filter(b => b.date === today).length;
                 
-                // Считаем доступные слоты на сегодня и завтра
                 let availableSlots = 0;
                 const tomorrow = new Date();
                 tomorrow.setDate(tomorrow.getDate() + 1);
