@@ -894,447 +894,517 @@
         }
         
         // ============ КЛАСС СИСТЕМЫ БРОНИРОВАНИЯ ============
-        
-        class BookingSystem {
-            constructor() {
-                this.bookings = [];
-                this.timeSlots = [
-                    { time: '09:00', capacity: 5 },
-                    { time: '10:00', capacity: 5 },
-                    { time: '11:00', capacity: 3 },
-                    { time: '13:00', capacity: 5 },
-                    { time: '14:00', capacity: 3 },
-                    { time: '15:00', capacity: 5 },
-                    { time: '16:00', capacity: 3 },
-                    { time: '17:00', capacity: 5 },
-                    { time: '18:00', capacity: 3 }
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/ВАШ_SCRIPT_ID/exec';
+class BookingSystem {
+    constructor() {
+        this.bookings = [];
+        this.timeSlots = [
+            { time: '09:00', capacity: 5 },
+            { time: '10:00', capacity: 5 },
+            { time: '11:00', capacity: 3 },
+            { time: '13:00', capacity: 5 },
+            { time: '14:00', capacity: 3 },
+            { time: '15:00', capacity: 5 },
+            { time: '16:00', capacity: 3 },
+            { time: '17:00', capacity: 5 },
+            { time: '18:00', capacity: 3 }
+        ];
+        this.selectedTime = null;
+        this.isEditing = false;
+        this.editingBookingId = null;
+        this.loadBookings();
+    }
+    
+    async loadBookings() {
+        try {
+            const response = await fetch(GOOGLE_SCRIPT_URL + '?action=getAll');
+            const data = await response.json();
+            this.bookings = data.bookings || [];
+            
+            console.log('Загружено записей:', this.bookings.length);
+            
+            if (this.bookings.length === 0) {
+                // Добавляем тестовые записи для демонстрации
+                const testBookings = [
+                    {
+                        id: Date.now(),
+                        fullName: 'Иванов Иван Иванович',
+                        email: 'ivanov@mail.ru',
+                        phone: '+7 (999) 123-45-67',
+                        date: '2024-12-25',
+                        time: '10:00',
+                        status: 'active',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: Date.now() + 1,
+                        fullName: 'Петрова Анна Сергеевна',
+                        email: 'petrova@mail.ru',
+                        phone: '+7 (999) 765-43-21',
+                        date: '2024-12-25',
+                        time: '14:00',
+                        status: 'active',
+                        createdAt: new Date().toISOString()
+                    }
                 ];
-                this.selectedTime = null;
-                this.isEditing = false;
-                this.editingBookingId = null;
-                this.loadBookings();
-            }
-            
-            loadBookings() {
-                try {
-                    const data = localStorage.getItem('courseBookings');
-                    if (data) {
-                        this.bookings = JSON.parse(data);
-                    } else {
-                        this.bookings = [
-                            {
-                                id: 1,
-                                fullName: 'Иванов Иван Иванович',
-                                email: 'ivanov@mail.ru',
-                                phone: '+7 (999) 123-45-67',
-                                date: '2024-12-25',
-                                time: '10:00',
-                                status: 'active',
-                                createdAt: new Date().toISOString()
-                            },
-                            {
-                                id: 2,
-                                fullName: 'Петрова Анна Сергеевна',
-                                email: 'petrova@mail.ru',
-                                phone: '+7 (999) 765-43-21',
-                                date: '2024-12-25',
-                                time: '14:00',
-                                status: 'active',
-                                createdAt: new Date().toISOString()
-                            }
-                        ];
-                        this.saveBookings();
-                    }
-                } catch (error) {
-                    console.error('Ошибка загрузки:', error);
-                    this.bookings = [];
-                }
-            }
-            
-            saveBookings() {
-                localStorage.setItem('courseBookings', JSON.stringify(this.bookings));
-            }
-            
-            setupAdminInterface() {
-                console.log('Настройка админ-интерфейса');
-                this.setMinDate('courseDate');
-                this.renderTimeSlots('timeSlots', 'courseDate', 'selectedTime');
-                this.renderBookings();
-                this.updateStats();
-            }
-            
-            setupUserInterface() {
-                console.log('Настройка пользовательского интерфейса');
-                this.setMinDate('userCourseDate');
-                this.renderTimeSlots('userTimeSlots', 'userCourseDate', 'userSelectedTime');
-            }
-            
-            setMinDate(inputId) {
-                const dateInput = document.getElementById(inputId);
-                if (dateInput) {
-                    const today = new Date();
-                    const tomorrow = new Date(today);
-                    tomorrow.setDate(today.getDate() + 1);
-                    dateInput.min = tomorrow.toISOString().split('T')[0];
-                }
-            }
-            
-            getBookingsForDate(date) {
-                return this.bookings.filter(b => b.date === date && b.status === 'active');
-            }
-            
-            getTimeSlotAvailability(time, date) {
-                const bookings = this.getBookingsForDate(date);
-                const booked = bookings.filter(b => b.time === time).length;
-                const slot = this.timeSlots.find(s => s.time === time);
-                const capacity = slot ? slot.capacity : 5;
-                return {
-                    booked: booked,
-                    available: capacity - booked,
-                    capacity: capacity,
-                    isFull: booked >= capacity
-                };
-            }
-            
-            renderTimeSlots(containerId, dateInputId, selectedTimeInputId) {
-                const container = document.getElementById(containerId);
-                const dateInput = document.getElementById(dateInputId);
                 
-                if (!container || !dateInput) return;
-                
-                const date = dateInput.value;
-                
-                if (!date) {
-                    container.innerHTML = '<p style="grid-column: 1/-1; color: #999; text-align: center;">Сначала выберите дату</p>';
-                    return;
+                for (const booking of testBookings) {
+                    await this.sendBookingToServer(booking);
                 }
                 
-                container.innerHTML = '';
-                
-                this.timeSlots.forEach(slot => {
-                    const availability = this.getTimeSlotAvailability(slot.time, date);
-                    const slotDiv = document.createElement('div');
-                    slotDiv.className = 'time-slot';
-                    slotDiv.textContent = `${slot.time} (${availability.available}/${availability.capacity})`;
-                    
-                    if (availability.isFull) {
-                        slotDiv.classList.add('full');
-                        slotDiv.title = 'Все места заняты';
-                    } else if (availability.available <= 2) {
-                        slotDiv.style.borderColor = '#ff9800';
-                        slotDiv.title = `Осталось ${availability.available} мест`;
-                    }
-                    
-                    slotDiv.addEventListener('click', () => {
-                        if (!availability.isFull) {
-                            container.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
-                            slotDiv.classList.add('selected');
-                            document.getElementById(selectedTimeInputId).value = slot.time;
-                            this.selectedTime = slot.time;
-                        }
-                    });
-                    
-                    container.appendChild(slotDiv);
-                });
+                this.bookings = testBookings;
             }
             
-            createBooking() {
-                const fullName = document.getElementById('fullName').value.trim();
-                const email = document.getElementById('email').value.trim();
-                const phone = document.getElementById('phone').value.trim();
-                const date = document.getElementById('courseDate').value;
-                const time = document.getElementById('selectedTime').value;
-                
-                if (!fullName || !email || !date || !time) {
-                    showNotification('❌ Заполните все обязательные поля', 'error');
-                    return;
-                }
-                
-                if (!this.validateEmail(email)) {
-                    showNotification('❌ Неверный формат email', 'error');
-                    return;
-                }
-                
-                const availability = this.getTimeSlotAvailability(time, date);
-                if (availability.isFull) {
-                    showNotification('❌ На это время нет свободных мест', 'error');
-                    return;
-                }
-                
-                const booking = {
-                    id: Date.now(),
-                    fullName: fullName,
-                    email: email,
-                    phone: phone,
-                    date: date,
-                    time: time,
-                    status: 'active',
-                    createdAt: new Date().toISOString()
-                };
-                
-                this.bookings.push(booking);
-                this.saveBookings();
-                this.renderBookings();
-                this.updateStats();
-                this.resetForm();
-                
-                showNotification('✅ Запись успешно создана!', 'success');
-            }
+            // Сохраняем локально как кэш
+            localStorage.setItem('courseBookings', JSON.stringify(this.bookings));
             
-            createUserBooking() {
-                const fullName = document.getElementById('userFullName').value.trim();
-                const email = document.getElementById('userEmail').value.trim();
-                const phone = document.getElementById('userPhone').value.trim();
-                const date = document.getElementById('userCourseDate').value;
-                const time = document.getElementById('userSelectedTime').value;
-                
-                if (!fullName || !email || !date || !time) {
-                    showNotification('❌ Заполните все обязательные поля', 'error');
-                    return;
-                }
-                
-                if (!this.validateEmail(email)) {
-                    showNotification('❌ Неверный формат email', 'error');
-                    return;
-                }
-                
-                const availability = this.getTimeSlotAvailability(time, date);
-                if (availability.isFull) {
-                    showNotification('❌ На это время нет свободных мест', 'error');
-                    return;
-                }
-                
-                const booking = {
-                    id: Date.now(),
-                    fullName: fullName,
-                    email: email,
-                    phone: phone,
-                    date: date,
-                    time: time,
-                    status: 'active',
-                    createdAt: new Date().toISOString()
-                };
-                
-                this.bookings.push(booking);
-                this.saveBookings();
-                
-                document.getElementById('userBookingForm').style.display = 'none';
-                document.getElementById('successMessage').classList.add('show');
-                
-                showNotification('✅ Вы успешно записаны на курс!', 'success');
-            }
+        } catch (error) {
+            console.error('Ошибка загрузки с сервера:', error);
+            console.log('Загружаем из localStorage...');
             
-            updateBooking() {
-                const fullName = document.getElementById('fullName').value.trim();
-                const email = document.getElementById('email').value.trim();
-                const phone = document.getElementById('phone').value.trim();
-                const date = document.getElementById('courseDate').value;
-                const time = document.getElementById('selectedTime').value;
-                
-                if (!fullName || !email || !date || !time) {
-                    showNotification('❌ Заполните все обязательные поля', 'error');
-                    return;
-                }
-                
-                const bookingIndex = this.bookings.findIndex(b => b.id === this.editingBookingId);
-                
-                if (bookingIndex !== -1) {
-                    this.bookings[bookingIndex] = {
-                        ...this.bookings[bookingIndex],
-                        fullName: fullName,
-                        email: email,
-                        phone: phone,
-                        date: date,
-                        time: time
-                    };
-                    
-                    this.saveBookings();
-                    this.renderBookings();
-                    this.updateStats();
-                    this.resetForm();
-                    
-                    showNotification('✅ Запись обновлена!', 'success');
-                }
-            }
-            
-            cancelBooking(id) {
-                if (confirm('Вы уверены, что хотите отменить эту запись?')) {
-                    const booking = this.bookings.find(b => b.id === id);
-                    if (booking) {
-                        booking.status = 'cancelled';
-                        this.saveBookings();
-                        this.renderBookings();
-                        this.updateStats();
-                        showNotification('🚫 Запись отменена', 'info');
-                    }
-                }
-            }
-            
-            restoreBooking(id) {
-                const booking = this.bookings.find(b => b.id === id);
-                if (booking) {
-                    booking.status = 'active';
-                    this.saveBookings();
-                    this.renderBookings();
-                    this.updateStats();
-                    showNotification('✅ Запись восстановлена', 'success');
-                }
-            }
-            
-            deleteBooking(id) {
-                if (confirm('Вы уверены, что хотите удалить эту запись безвозвратно?')) {
-                    this.bookings = this.bookings.filter(b => b.id !== id);
-                    this.saveBookings();
-                    this.renderBookings();
-                    this.updateStats();
-                    
-                    if (this.editingBookingId === id) {
-                        this.resetForm();
-                    }
-                    
-                    showNotification('🗑️ Запись удалена', 'info');
-                }
-            }
-            
-            editBooking(id) {
-                const booking = this.bookings.find(b => b.id === id);
-                if (booking) {
-                    this.isEditing = true;
-                    this.editingBookingId = id;
-                    
-                    document.getElementById('fullName').value = booking.fullName;
-                    document.getElementById('email').value = booking.email;
-                    document.getElementById('phone').value = booking.phone || '';
-                    document.getElementById('courseDate').value = booking.date;
-                    document.getElementById('selectedTime').value = booking.time;
-                    this.selectedTime = booking.time;
-                    
-                    document.getElementById('submitBtn').textContent = '💾 Сохранить изменения';
-                    document.getElementById('editingIndicator').classList.add('active');
-                    document.getElementById('editingId').textContent = id;
-                    
-                    this.renderTimeSlots('timeSlots', 'courseDate', 'selectedTime');
-                    
-                    setTimeout(() => {
-                        const slots = document.querySelectorAll('#timeSlots .time-slot');
-                        slots.forEach(slot => {
-                            if (slot.textContent.includes(booking.time)) {
-                                slot.classList.add('selected');
-                            }
-                        });
-                    }, 100);
-                    
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
-            }
-            
-            resetForm() {
-                this.isEditing = false;
-                this.editingBookingId = null;
-                this.selectedTime = null;
-                
-                document.getElementById('bookingForm').reset();
-                document.getElementById('selectedTime').value = '';
-                document.getElementById('submitBtn').textContent = '✅ Записаться на курс';
-                document.getElementById('editingIndicator').classList.remove('active');
-                
-                this.renderTimeSlots('timeSlots', 'courseDate', 'selectedTime');
-            }
-            
-            getActiveBookings() {
-                return this.bookings.filter(b => b.status === 'active');
-            }
-            
-            renderBookings() {
-                const tbody = document.getElementById('bookingsTableBody');
-                const searchText = document.getElementById('searchInput').value.toLowerCase();
-                const filterDate = document.getElementById('filterDate').value;
-                const filterStatus = document.getElementById('filterStatus').value;
-                
-                let filteredBookings = [...this.bookings];
-                
-                if (searchText) {
-                    filteredBookings = filteredBookings.filter(b => 
-                        b.fullName.toLowerCase().includes(searchText) ||
-                        b.email.toLowerCase().includes(searchText) ||
-                        b.phone.includes(searchText)
-                    );
-                }
-                
-                if (filterDate) {
-                    filteredBookings = filteredBookings.filter(b => b.date === filterDate);
-                }
-                
-                if (filterStatus === 'active') {
-                    filteredBookings = filteredBookings.filter(b => b.status === 'active');
-                } else if (filterStatus === 'cancelled') {
-                    filteredBookings = filteredBookings.filter(b => b.status === 'cancelled');
-                }
-                
-                filteredBookings.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                
-                if (filteredBookings.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #999;">Нет записей</td></tr>';
-                    return;
-                }
-                
-                tbody.innerHTML = filteredBookings.map((b, index) => `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td><strong>${b.fullName}</strong></td>
-                        <td>${b.email}</td>
-                        <td>${b.phone || '-'}</td>
-                        <td>${new Date(b.date).toLocaleDateString('ru-RU')}</td>
-                        <td>${b.time}</td>
-                        <td>
-                            <span class="status-badge ${b.status === 'active' ? 'status-active' : 'status-cancelled'}">
-                                ${b.status === 'active' ? 'Активна' : 'Отменена'}
-                            </span>
-                        </td>
-                        <td>
-                            <div class="booking-actions">
-                                ${b.status === 'active' ? `
-                                    <button class="btn btn-warning" onclick="bookingSystem.editBooking(${b.id})" title="Редактировать">✏️</button>
-                                    <button class="btn btn-danger" onclick="bookingSystem.cancelBooking(${b.id})" title="Отменить">🚫</button>
-                                ` : `
-                                    <button class="btn btn-info" onclick="bookingSystem.restoreBooking(${b.id})" title="Восстановить">🔄</button>
-                                `}
-                                <button class="btn btn-danger" onclick="bookingSystem.deleteBooking(${b.id})" title="Удалить">🗑️</button>
-                            </div>
-                        </td>
-                    </tr>
-                `).join('');
-            }
-            
-            filterBookings() {
-                this.renderBookings();
-            }
-            
-            updateStats() {
-                const totalBookings = this.getActiveBookings().length;
-                const today = new Date().toISOString().split('T')[0];
-                const todayBookings = this.getActiveBookings().filter(b => b.date === today).length;
-                
-                let availableSlots = 0;
-                const tomorrow = new Date();
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                const tomorrowStr = tomorrow.toISOString().split('T')[0];
-                
-                this.timeSlots.forEach(slot => {
-                    const availability = this.getTimeSlotAvailability(slot.time, tomorrowStr);
-                    availableSlots += availability.available;
-                });
-                
-                document.getElementById('totalBookings').textContent = totalBookings;
-                document.getElementById('todayBookings').textContent = todayBookings;
-                document.getElementById('availableSlots').textContent = availableSlots;
-            }
-            
-            validateEmail(email) {
-                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                return re.test(email);
+            // Запасной вариант - загружаем из localStorage
+            const data = localStorage.getItem('courseBookings');
+            if (data) {
+                this.bookings = JSON.parse(data);
+                console.log('Загружено из localStorage:', this.bookings.length);
+            } else {
+                console.log('Нет данных ни на сервере, ни локально');
+                this.bookings = [];
             }
         }
+    }
+    
+    async sendBookingToServer(booking) {
+        try {
+            const response = await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'addBooking',
+                    ...booking
+                })
+            });
+            
+            const result = await response.json();
+            console.log('Отправлено на сервер:', result);
+            return result;
+            
+        } catch (error) {
+            console.error('Ошибка отправки на сервер:', error);
+            return { success: false, error: error.message };
+        }
+    }
+    
+    saveBookings() {
+        // Сохраняем локально для быстрого доступа и офлайн-режима
+        localStorage.setItem('courseBookings', JSON.stringify(this.bookings));
+    }
+    
+    setupAdminInterface() {
+        console.log('Настройка админ-интерфейса');
+        this.setMinDate('courseDate');
+        this.renderTimeSlots('timeSlots', 'courseDate', 'selectedTime');
+        this.renderBookings();
+        this.updateStats();
+    }
+    
+    setupUserInterface() {
+        console.log('Настройка пользовательского интерфейса');
+        this.setMinDate('userCourseDate');
+        this.renderTimeSlots('userTimeSlots', 'userCourseDate', 'userSelectedTime');
+    }
+    
+    setMinDate(inputId) {
+        const dateInput = document.getElementById(inputId);
+        if (dateInput) {
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            dateInput.min = tomorrow.toISOString().split('T')[0];
+        }
+    }
+    
+    getBookingsForDate(date) {
+        return this.bookings.filter(b => b.date === date && b.status === 'active');
+    }
+    
+    getTimeSlotAvailability(time, date) {
+        const bookings = this.getBookingsForDate(date);
+        const booked = bookings.filter(b => b.time === time).length;
+        const slot = this.timeSlots.find(s => s.time === time);
+        const capacity = slot ? slot.capacity : 5;
+        return {
+            booked: booked,
+            available: capacity - booked,
+            capacity: capacity,
+            isFull: booked >= capacity
+        };
+    }
+    
+    renderTimeSlots(containerId, dateInputId, selectedTimeInputId) {
+        const container = document.getElementById(containerId);
+        const dateInput = document.getElementById(dateInputId);
+        
+        if (!container || !dateInput) return;
+        
+        const date = dateInput.value;
+        
+        if (!date) {
+            container.innerHTML = '<p style="grid-column: 1/-1; color: #999; text-align: center;">Сначала выберите дату</p>';
+            return;
+        }
+        
+        container.innerHTML = '';
+        
+        this.timeSlots.forEach(slot => {
+            const availability = this.getTimeSlotAvailability(slot.time, date);
+            const slotDiv = document.createElement('div');
+            slotDiv.className = 'time-slot';
+            slotDiv.textContent = `${slot.time} (${availability.available}/${availability.capacity})`;
+            
+            if (availability.isFull) {
+                slotDiv.classList.add('full');
+                slotDiv.title = 'Все места заняты';
+            } else if (availability.available <= 2) {
+                slotDiv.style.borderColor = '#ff9800';
+                slotDiv.title = `Осталось ${availability.available} мест`;
+            }
+            
+            slotDiv.addEventListener('click', () => {
+                if (!availability.isFull) {
+                    container.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+                    slotDiv.classList.add('selected');
+                    document.getElementById(selectedTimeInputId).value = slot.time;
+                    this.selectedTime = slot.time;
+                }
+            });
+            
+            container.appendChild(slotDiv);
+        });
+    }
+    
+    async createBooking() {
+        const fullName = document.getElementById('fullName').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const date = document.getElementById('courseDate').value;
+        const time = document.getElementById('selectedTime').value;
+        
+        if (!fullName || !email || !date || !time) {
+            showNotification('❌ Заполните все обязательные поля', 'error');
+            return;
+        }
+        
+        if (!this.validateEmail(email)) {
+            showNotification('❌ Неверный формат email', 'error');
+            return;
+        }
+        
+        const availability = this.getTimeSlotAvailability(time, date);
+        if (availability.isFull) {
+            showNotification('❌ На это время нет свободных мест', 'error');
+            return;
+        }
+        
+        const booking = {
+            id: Date.now(),
+            fullName: fullName,
+            email: email,
+            phone: phone,
+            date: date,
+            time: time,
+            status: 'active',
+            createdAt: new Date().toISOString()
+        };
+        
+        this.bookings.push(booking);
+        
+        // Отправляем на сервер Google Sheets
+        await this.sendBookingToServer(booking);
+        
+        this.saveBookings();
+        this.renderBookings();
+        this.updateStats();
+        this.resetForm();
+        
+        showNotification('✅ Запись успешно создана!', 'success');
+    }
+    
+    async createUserBooking() {
+        const fullName = document.getElementById('userFullName').value.trim();
+        const email = document.getElementById('userEmail').value.trim();
+        const phone = document.getElementById('userPhone').value.trim();
+        const date = document.getElementById('userCourseDate').value;
+        const time = document.getElementById('userSelectedTime').value;
+        
+        if (!fullName || !email || !date || !time) {
+            showNotification('❌ Заполните все обязательные поля', 'error');
+            return;
+        }
+        
+        if (!this.validateEmail(email)) {
+            showNotification('❌ Неверный формат email', 'error');
+            return;
+        }
+        
+        const availability = this.getTimeSlotAvailability(time, date);
+        if (availability.isFull) {
+            showNotification('❌ На это время нет свободных мест', 'error');
+            return;
+        }
+        
+        const booking = {
+            id: Date.now(),
+            fullName: fullName,
+            email: email,
+            phone: phone,
+            date: date,
+            time: time,
+            status: 'active',
+            createdAt: new Date().toISOString()
+        };
+        
+        this.bookings.push(booking);
+        
+        // Отправляем на сервер Google Sheets
+        await this.sendBookingToServer(booking);
+        
+        this.saveBookings();
+        
+        document.getElementById('userBookingForm').style.display = 'none';
+        document.getElementById('successMessage').classList.add('show');
+        
+        showNotification('✅ Вы успешно записаны на курс!', 'success');
+    }
+    
+    async updateBooking() {
+        const fullName = document.getElementById('fullName').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const date = document.getElementById('courseDate').value;
+        const time = document.getElementById('selectedTime').value;
+        
+        if (!fullName || !email || !date || !time) {
+            showNotification('❌ Заполните все обязательные поля', 'error');
+            return;
+        }
+        
+        const bookingIndex = this.bookings.findIndex(b => b.id === this.editingBookingId);
+        
+        if (bookingIndex !== -1) {
+            this.bookings[bookingIndex] = {
+                ...this.bookings[bookingIndex],
+                fullName: fullName,
+                email: email,
+                phone: phone,
+                date: date,
+                time: time
+            };
+            
+            // Отправляем обновленную запись на сервер
+            await this.sendBookingToServer(this.bookings[bookingIndex]);
+            
+            this.saveBookings();
+            this.renderBookings();
+            this.updateStats();
+            this.resetForm();
+            
+            showNotification('✅ Запись обновлена!', 'success');
+        }
+    }
+    
+    async cancelBooking(id) {
+        if (confirm('Вы уверены, что хотите отменить эту запись?')) {
+            const booking = this.bookings.find(b => b.id === id);
+            if (booking) {
+                booking.status = 'cancelled';
+                
+                // Отправляем обновление на сервер
+                await this.sendBookingToServer(booking);
+                
+                this.saveBookings();
+                this.renderBookings();
+                this.updateStats();
+                showNotification('🚫 Запись отменена', 'info');
+            }
+        }
+    }
+    
+    async restoreBooking(id) {
+        const booking = this.bookings.find(b => b.id === id);
+        if (booking) {
+            booking.status = 'active';
+            
+            // Отправляем обновление на сервер
+            await this.sendBookingToServer(booking);
+            
+            this.saveBookings();
+            this.renderBookings();
+            this.updateStats();
+            showNotification('✅ Запись восстановлена', 'success');
+        }
+    }
+    
+    async deleteBooking(id) {
+        if (confirm('Вы уверены, что хотите удалить эту запись безвозвратно?')) {
+            this.bookings = this.bookings.filter(b => b.id !== id);
+            
+            // Полностью пересохраняем все данные на сервере
+            // Это нужно, так как у нас нет метода удаления в Google Script
+            localStorage.setItem('courseBookings', JSON.stringify(this.bookings));
+            
+            showNotification('⚠️ Для полного удаления из Google Таблицы, удалите запись вручную', 'info');
+            
+            this.renderBookings();
+            this.updateStats();
+            
+            if (this.editingBookingId === id) {
+                this.resetForm();
+            }
+        }
+    }
+    
+    editBooking(id) {
+        const booking = this.bookings.find(b => b.id === id);
+        if (booking) {
+            this.isEditing = true;
+            this.editingBookingId = id;
+            
+            document.getElementById('fullName').value = booking.fullName;
+            document.getElementById('email').value = booking.email;
+            document.getElementById('phone').value = booking.phone || '';
+            document.getElementById('courseDate').value = booking.date;
+            document.getElementById('selectedTime').value = booking.time;
+            this.selectedTime = booking.time;
+            
+            document.getElementById('submitBtn').textContent = '💾 Сохранить изменения';
+            document.getElementById('editingIndicator').classList.add('active');
+            document.getElementById('editingId').textContent = id;
+            
+            this.renderTimeSlots('timeSlots', 'courseDate', 'selectedTime');
+            
+            setTimeout(() => {
+                const slots = document.querySelectorAll('#timeSlots .time-slot');
+                slots.forEach(slot => {
+                    if (slot.textContent.includes(booking.time)) {
+                        slot.classList.add('selected');
+                    }
+                });
+            }, 100);
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
+    
+    resetForm() {
+        this.isEditing = false;
+        this.editingBookingId = null;
+        this.selectedTime = null;
+        
+        document.getElementById('bookingForm').reset();
+        document.getElementById('selectedTime').value = '';
+        document.getElementById('submitBtn').textContent = '✅ Записаться на курс';
+        document.getElementById('editingIndicator').classList.remove('active');
+        
+        this.renderTimeSlots('timeSlots', 'courseDate', 'selectedTime');
+    }
+    
+    getActiveBookings() {
+        return this.bookings.filter(b => b.status === 'active');
+    }
+    
+    renderBookings() {
+        const tbody = document.getElementById('bookingsTableBody');
+        const searchText = document.getElementById('searchInput').value.toLowerCase();
+        const filterDate = document.getElementById('filterDate').value;
+        const filterStatus = document.getElementById('filterStatus').value;
+        
+        let filteredBookings = [...this.bookings];
+        
+        if (searchText) {
+            filteredBookings = filteredBookings.filter(b => 
+                b.fullName.toLowerCase().includes(searchText) ||
+                b.email.toLowerCase().includes(searchText) ||
+                b.phone.includes(searchText)
+            );
+        }
+        
+        if (filterDate) {
+            filteredBookings = filteredBookings.filter(b => b.date === filterDate);
+        }
+        
+        if (filterStatus === 'active') {
+            filteredBookings = filteredBookings.filter(b => b.status === 'active');
+        } else if (filterStatus === 'cancelled') {
+            filteredBookings = filteredBookings.filter(b => b.status === 'cancelled');
+        }
+        
+        filteredBookings.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        
+        if (filteredBookings.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #999;">Нет записей</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = filteredBookings.map((b, index) => `
+            <tr>
+                <td>${index + 1}</td>
+                <td><strong>${b.fullName}</strong></td>
+                <td>${b.email}</td>
+                <td>${b.phone || '-'}</td>
+                <td>${new Date(b.date).toLocaleDateString('ru-RU')}</td>
+                <td>${b.time}</td>
+                <td>
+                    <span class="status-badge ${b.status === 'active' ? 'status-active' : 'status-cancelled'}">
+                        ${b.status === 'active' ? 'Активна' : 'Отменена'}
+                    </span>
+                </td>
+                <td>
+                    <div class="booking-actions">
+                        ${b.status === 'active' ? `
+                            <button class="btn btn-warning" onclick="bookingSystem.editBooking(${b.id})" title="Редактировать">✏️</button>
+                            <button class="btn btn-danger" onclick="bookingSystem.cancelBooking(${b.id})" title="Отменить">🚫</button>
+                        ` : `
+                            <button class="btn btn-info" onclick="bookingSystem.restoreBooking(${b.id})" title="Восстановить">🔄</button>
+                        `}
+                        <button class="btn btn-danger" onclick="bookingSystem.deleteBooking(${b.id})" title="Удалить">🗑️</button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+    
+    filterBookings() {
+        this.renderBookings();
+    }
+    
+    updateStats() {
+        const totalBookings = this.getActiveBookings().length;
+        const today = new Date().toISOString().split('T')[0];
+        const todayBookings = this.getActiveBookings().filter(b => b.date === today).length;
+        
+        let availableSlots = 0;
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+        
+        this.timeSlots.forEach(slot => {
+            const availability = this.getTimeSlotAvailability(slot.time, tomorrowStr);
+            availableSlots += availability.available;
+        });
+        
+        document.getElementById('totalBookings').textContent = totalBookings;
+        document.getElementById('todayBookings').textContent = todayBookings;
+        document.getElementById('availableSlots').textContent = availableSlots;
+    }
+    
+    validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+}
     </script>
 </body>
 </html>
