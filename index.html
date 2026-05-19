@@ -3,440 +3,586 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Запись на курсы</title>
+    <title>Система записи на курсы</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
             min-height: 100vh;
+        }
+        
+        #mainPage {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 20px;
         }
-
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        .card {
+        
+        .main-card {
             background: white;
-            border-radius: 20px;
-            padding: 30px 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            margin-bottom: 20px;
-        }
-
-        h1 {
+            border-radius: 30px;
+            padding: 60px 40px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.3);
             text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .main-card h1 {
+            font-size: 36px;
             color: #333;
-            font-size: 28px;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
         }
-
-        .subtitle {
-            text-align: center;
+        
+        .main-card .subtitle {
             color: #666;
-            margin-bottom: 25px;
-            font-size: 16px;
+            font-size: 18px;
+            margin-bottom: 40px;
         }
-
-        .tabs {
+        
+        .main-buttons {
             display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
-            background: #f5f5f5;
-            border-radius: 12px;
-            padding: 5px;
+            flex-direction: column;
+            gap: 20px;
         }
-
-        .tab {
-            flex: 1;
-            padding: 12px;
+        
+        .main-btn {
+            padding: 20px 30px;
             border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 15px;
+            border-radius: 15px;
+            font-size: 18px;
             font-weight: 600;
+            cursor: pointer;
             transition: all 0.3s;
-            background: transparent;
-            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
-
-        .tab.active {
+        
+        .btn-user {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 22px;
+            padding: 25px;
+        }
+        
+        .btn-user:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-admin {
             background: white;
             color: #667eea;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 2px solid #667eea;
+            font-size: 16px;
         }
-
+        
+        .btn-admin:hover {
+            background: #f0f2ff;
+            transform: translateY(-2px);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .login-modal {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .login-modal h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+            font-size: 24px;
+        }
+        
+        .admin-header {
+            background: linear-gradient(135deg, #333 0%, #555 100%);
+            color: white;
+            padding: 20px;
+            display: none;
+        }
+        
+        .user-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: none;
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #333;
+        }
+        
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .btn-info {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+        }
+        
+        .btn-back {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        
+        .main-container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: none;
+        }
+        
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        .user-layout {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        @media (max-width: 1024px) {
+            .admin-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 20px;
         }
-
+        
         label {
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             color: #555;
             font-weight: 600;
             font-size: 14px;
         }
-
-        .required::after {
-            content: " *";
-            color: #f44336;
-        }
-
-        input {
+        
+        input, select, textarea {
             width: 100%;
-            padding: 14px;
+            padding: 12px;
             border: 2px solid #e0e0e0;
-            border-radius: 12px;
+            border-radius: 8px;
             font-size: 16px;
             transition: all 0.3s;
-            background: #fafafa;
+            font-family: inherit;
         }
-
-        input:focus {
+        
+        input:focus, select:focus {
             outline: none;
             border-color: #667eea;
-            background: white;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-
-        .time-grid {
+        
+        .time-slots {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
+            gap: 10px;
+            margin-top: 10px;
         }
-
-        .time-btn {
-            padding: 12px 8px;
+        
+        .time-slot {
+            padding: 15px;
             border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            background: white;
-            cursor: pointer;
+            border-radius: 8px;
             text-align: center;
-            font-size: 14px;
-            font-weight: 500;
+            cursor: pointer;
             transition: all 0.3s;
+            background: white;
+            font-weight: 500;
         }
-
-        .time-btn:active {
-            transform: scale(0.95);
+        
+        .time-slot:hover:not(.booked):not(.full) {
+            border-color: #667eea;
+            background: #f0f2ff;
+            transform: translateY(-2px);
         }
-
-        .time-btn.selected {
+        
+        .time-slot.selected {
             background: #667eea;
             color: white;
             border-color: #667eea;
         }
-
-        .time-btn.full {
-            background: #fff0f0;
-            border-color: #ffcccc;
-            color: #cc0000;
-            opacity: 0.7;
+        
+        .time-slot.booked {
+            background: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
         }
-
-        .time-btn .available {
-            font-size: 11px;
-            opacity: 0.7;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 10px;
-        }
-
-        .btn:active {
-            transform: scale(0.98);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .btn-success {
-            background: #4CAF50;
-            color: white;
-        }
-
-        .btn-secondary {
-            background: #f5f5f5;
-            color: #333;
-        }
-
-        .success-box {
-            text-align: center;
-            padding: 40px 20px;
-            display: none;
-        }
-
-        .success-box.show {
-            display: block;
-        }
-
-        .success-icon {
-            font-size: 64px;
-            margin-bottom: 20px;
-        }
-
-        .login-box {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        .booking-item {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            border-left: 4px solid #667eea;
-        }
-
-        .booking-item.cancelled {
-            border-left-color: #f44336;
-            opacity: 0.7;
-        }
-
-        .booking-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .booking-name {
-            font-weight: 700;
-            font-size: 16px;
-        }
-
-        .badge {
-            font-size: 11px;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-weight: 600;
-        }
-
-        .badge-active {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .badge-cancelled {
+        
+        .time-slot.full {
             background: #f8d7da;
+            border-color: #dc3545;
             color: #721c24;
+            cursor: not-allowed;
+            text-decoration: line-through;
         }
-
-        .booking-details {
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
             font-size: 14px;
-            color: #666;
-            line-height: 1.6;
         }
-
-        .booking-actions {
-            margin-top: 10px;
-            display: flex;
-            gap: 5px;
-        }
-
-        .btn-xs {
-            padding: 6px 12px;
-            font-size: 12px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
+        
+        th {
+            background: #f8f9fa;
             font-weight: 600;
+            color: #555;
         }
-
-        .btn-xs:active {
-            transform: scale(0.95);
+        
+        tr:hover {
+            background: #f8f9fa;
         }
-
-        .btn-cancel {
-            background: #f44336;
-            color: white;
-        }
-
-        .btn-restore {
-            background: #4CAF50;
-            color: white;
-        }
-
-        .btn-delete {
-            background: #999;
-            color: white;
-        }
-
+        
         .notification {
             position: fixed;
             top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 12px 24px;
-            border-radius: 50px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
             color: white;
-            font-weight: 600;
-            z-index: 1000;
+            font-weight: 500;
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
             display: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            animation: slideDown 0.3s ease;
-            max-width: 90%;
-            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
         }
-
+        
         .notification.show {
             display: block;
         }
-
-        .notification.success {
-            background: #4CAF50;
+        
+        .notification.success { background: #4CAF50; }
+        .notification.error { background: #f44336; }
+        .notification.info { background: #2196F3; }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
-
-        .notification.error {
-            background: #f44336;
-        }
-
-        .notification.info {
-            background: #2196F3;
-        }
-
-        @keyframes slideDown {
-            from {
-                transform: translateX(-50%) translateY(-100px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(-50%) translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
+        
+        .filters {
+            display: flex;
             gap: 10px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
-
+        
+        .filters input, .filters select {
+            width: auto;
+            min-width: 200px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
         .stat-card {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 15px;
-            border-radius: 12px;
+            padding: 20px;
+            border-radius: 10px;
             text-align: center;
         }
-
+        
         .stat-value {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: bold;
         }
-
+        
         .stat-label {
-            font-size: 12px;
+            font-size: 14px;
             opacity: 0.9;
+            margin-top: 5px;
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-active { background: #d4edda; color: #155724; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
+        
+        .table-container {
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .booking-actions {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        
+        .booking-actions .btn {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        
+        .editing-indicator {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .editing-indicator.active {
+            display: flex;
+        }
+        
+        .success-message {
+            text-align: center;
+            padding: 40px;
+            background: #d4edda;
+            border-radius: 15px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .success-message.show {
+            display: block;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="card">
-            <h1>📚 Запись на курсы</h1>
-
-            <!-- Вкладки -->
-            <div class="tabs">
-                <button class="tab active" onclick="switchTab('user')">📝 Запись</button>
-                <button class="tab" onclick="switchTab('admin')">🔐 Админ</button>
+    <!-- ГЛАВНАЯ СТРАНИЦА -->
+    <div id="mainPage">
+        <div class="main-card">
+            <h1>📚 Курсы</h1>
+            <p class="subtitle">Система записи на обучение</p>
+            
+            <div class="main-buttons">
+                <button class="main-btn btn-user" id="btnUserInterface">
+                    📝 Записаться на курс
+                </button>
+                
+                <button class="main-btn btn-admin" id="btnAdminLogin">
+                    🔐 Вход для администратора
+                </button>
             </div>
-
-            <!-- Форма для клиентов -->
-            <div id="userTab">
-                <form id="bookingForm" onsubmit="return false;">
-                    <div class="form-group">
-                        <label class="required">ФИО</label>
-                        <input type="text" id="fullName" placeholder="Иванов Иван Иванович" required>
+        </div>
+    </div>
+    
+    <!-- МОДАЛЬНОЕ ОКНО ВХОДА -->
+    <div id="loginModal" class="modal">
+        <div class="login-modal">
+            <h2>🔐 Вход в админ-панель</h2>
+            
+            <div id="loginError" style="color: #f44336; text-align: center; margin-bottom: 15px; display: none;"></div>
+            
+            <div class="form-group">
+                <label>Логин</label>
+                <input type="text" id="loginInput" placeholder="Введите логин">
+            </div>
+            
+            <div class="form-group">
+                <label>Пароль</label>
+                <input type="password" id="passwordInput" placeholder="Введите пароль">
+            </div>
+            
+            <button class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 16px;" id="btnLogin">
+                Войти
+            </button>
+            
+            <button class="btn btn-secondary" style="width: 100%; margin-top: 10px;" id="btnCancelLogin">
+                Отмена
+            </button>
+            
+            <p style="text-align: center; margin-top: 20px; color: #999; font-size: 14px;">
+                Логин: admin / Пароль: admin123
+            </p>
+        </div>
+    </div>
+    
+    <!-- ШАПКА АДМИНА -->
+    <div id="adminHeader" class="admin-header">
+        <div class="header-content">
+            <h1>⚙️ Админ-панель</h1>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <span style="color: #ffd700;">👑 Администратор</span>
+                <button class="btn btn-back" id="btnBackToMain1">🏠 На главную</button>
+                <button class="btn btn-outline" id="btnLogout">🚪 Выйти</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ШАПКА ПОЛЬЗОВАТЕЛЯ -->
+    <div id="userHeader" class="user-header">
+        <div class="header-content">
+            <h1>📝 Запись на курсы</h1>
+            <button class="btn btn-back" id="btnBackToMain2">🏠 На главную</button>
+        </div>
+    </div>
+    
+    <!-- УВЕДОМЛЕНИЯ -->
+    <div id="notification" class="notification"></div>
+    
+    <!-- КОНТЕНТ АДМИНА -->
+    <div id="adminContainer" class="main-container">
+        <div class="admin-layout">
+            <div>
+                <div class="card">
+                    <h2 class="card-title">📝 Управление записями</h2>
+                    
+                    <div id="editingIndicator" class="editing-indicator">
+                        ✏️ <strong>Режим редактирования</strong> - ID: <span id="editingId"></span>
+                        <button class="btn btn-secondary" style="margin-left: auto; padding: 5px 10px; font-size: 12px;" id="btnCancelEditing">Отменить</button>
                     </div>
-
-                    <div class="form-group">
-                        <label class="required">Email</label>
-                        <input type="email" id="email" placeholder="example@mail.ru" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Телефон</label>
-                        <input type="tel" id="phone" placeholder="+7 (999) 123-45-67">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="required">Дата курса</label>
-                        <input type="date" id="courseDate" required onchange="renderTimeSlots()">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="required">Время</label>
-                        <div id="timeSlotsContainer" class="time-grid">
-                            <div style="grid-column: 1/-1; color: #999; text-align: center; padding: 20px;">
-                                👆 Сначала выберите дату
-                            </div>
+                    
+                    <form id="bookingForm">
+                        <div class="form-group">
+                            <label for="fullName">ФИО *</label>
+                            <input type="text" id="fullName" placeholder="Иванов Иван Иванович" required>
                         </div>
-                        <input type="hidden" id="selectedTime" required>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary" onclick="submitBooking()">
-                        ✅ Записаться
-                    </button>
-                </form>
-
-                <div id="successBox" class="success-box">
-                    <div class="success-icon">✅</div>
-                    <h2>Спасибо за запись!</h2>
-                    <p style="margin: 15px 0; color: #666;">Вы успешно записаны на курс</p>
-                    <button class="btn btn-primary" onclick="resetBookingForm()">
-                        Записаться ещё раз
-                    </button>
+                        
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" placeholder="example@mail.ru" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone">Телефон</label>
+                            <input type="tel" id="phone" placeholder="+7 (999) 123-45-67">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="courseDate">Дата курса *</label>
+                            <input type="date" id="courseDate" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Выберите время *</label>
+                            <div id="timeSlots" class="time-slots">
+                                <p style="grid-column: 1/-1; color: #999; text-align: center;">Сначала выберите дату</p>
+                            </div>
+                            <input type="hidden" id="selectedTime" required>
+                        </div>
+                        
+                        <button type="submit" id="submitBtn" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 16px;">
+                            ✅ Записаться на курс
+                        </button>
+                        <button type="button" class="btn btn-secondary" style="width: 100%; margin-top: 10px;" id="btnResetForm">
+                            🔄 Очистить форму
+                        </button>
+                    </form>
                 </div>
-            </div>
-
-            <!-- Админ-панель -->
-            <div id="adminTab" class="hidden">
-                <div id="adminLoginBox" class="login-box">
-                    <h3 style="margin-bottom: 15px;">🔐 Вход для администратора</h3>
-                    <div class="form-group">
-                        <label>Логин</label>
-                        <input type="text" id="loginInput" placeholder="admin">
-                    </div>
-                    <div class="form-group">
-                        <label>Пароль</label>
-                        <input type="password" id="passwordInput" placeholder="••••••••">
-                    </div>
-                    <button class="btn btn-primary" onclick="adminLogin()">
-                        Войти
-                    </button>
-                    <p style="text-align: center; margin-top: 12px; color: #999; font-size: 13px;">
-                        Логин: admin / Пароль: admin123
-                    </p>
-                </div>
-
-                <div id="adminPanelBox" class="hidden">
-                    <div class="stats">
+                
+                <div class="card">
+                    <h3>📈 Статистика</h3>
+                    <div class="stats-grid">
                         <div class="stat-card">
                             <div class="stat-value" id="totalBookings">0</div>
                             <div class="stat-label">Всего записей</div>
@@ -445,292 +591,450 @@
                             <div class="stat-value" id="todayBookings">0</div>
                             <div class="stat-label">За сегодня</div>
                         </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="availableSlots">0</div>
+                            <div class="stat-label">Свободных мест</div>
+                        </div>
                     </div>
-
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <h3>📋 Записи</h3>
-                        <button class="btn-xs btn-delete" onclick="adminLogout()">Выйти</button>
-                    </div>
-
+                </div>
+                
+                <div class="card">
+                    <h3>📁 Импорт/Экспорт</h3>
                     <div class="form-group">
-                        <input type="text" id="searchInput" placeholder="🔍 Поиск по имени, email..." oninput="renderAdminBookings()">
+                        <label>Загрузить список из файла</label>
+                        <input type="file" id="fileUpload" accept=".csv,.txt">
                     </div>
-
-                    <div id="bookingsList"></div>
+                    <button class="btn btn-info" id="btnDownloadTemplate">📥 Шаблон CSV</button>
+                    <button class="btn btn-info" id="btnExportCSV" style="margin-left: 10px;">📄 Выгрузить CSV</button>
+                </div>
+            </div>
+            
+            <div>
+                <div class="card">
+                    <h2 class="card-title">📋 Список записей</h2>
+                    
+                    <div class="filters">
+                        <input type="text" id="searchInput" placeholder="🔍 Поиск...">
+                        <input type="date" id="filterDate">
+                        <select id="filterStatus">
+                            <option value="all">Все записи</option>
+                            <option value="active">Активные</option>
+                            <option value="cancelled">Отмененные</option>
+                        </select>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>№</th>
+                                    <th>ФИО</th>
+                                    <th>Email</th>
+                                    <th>Телефон</th>
+                                    <th>Дата</th>
+                                    <th>Время</th>
+                                    <th>Статус</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bookingsTableBody">
+                                <tr>
+                                    <td colspan="8" style="text-align: center; color: #999;">Нет записей</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- КОНТЕНТ ПОЛЬЗОВАТЕЛЯ -->
+    <div id="userContainer" class="main-container">
+        <div class="user-layout">
+            <div class="card">
+                <h2 class="card-title">📝 Запись на курс</h2>
+                
+                <form id="userBookingForm">
+                    <div class="form-group">
+                        <label for="userFullName">ФИО *</label>
+                        <input type="text" id="userFullName" placeholder="Иванов Иван Иванович" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="userEmail">Email *</label>
+                        <input type="email" id="userEmail" placeholder="example@mail.ru" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="userPhone">Телефон</label>
+                        <input type="tel" id="userPhone" placeholder="+7 (999) 123-45-67">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="userCourseDate">Дата курса *</label>
+                        <input type="date" id="userCourseDate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Выберите время *</label>
+                        <div id="userTimeSlots" class="time-slots">
+                            <p style="grid-column: 1/-1; color: #999; text-align: center;">Сначала выберите дату</p>
+                        </div>
+                        <input type="hidden" id="userSelectedTime" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 16px;">
+                        ✅ Записаться на курс
+                    </button>
+                </form>
+                
+                <div id="successMessage" class="success-message">
+                    <h3>✅ Спасибо за запись!</h3>
+                    <p>Вы успешно записаны на курс.</p>
+                    <button class="btn btn-primary" id="btnNewBooking" style="margin-top: 20px;">
+                        Записаться ещё раз
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="notification" class="notification"></div>
-
     <script>
-        // ============ ЗАМЕНИТЕ ЭТУ СТРОКУ ============
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxC9lB9VIPnvprD8hPGseV9Ll_vQqYvZy6qayXrg3_-TbxcXoy8HRs5SQkn0vPNbJoF2w/exec';
-        // ============================================
-
-        const TIME_SLOTS = ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
-        const MAX_PER_SLOT = 5;
-        const ADMIN = { login: 'admin', password: 'admin123' };
-
-        let bookings = [];
-
-        // ============ ЗАГРУЗКА ============
-        function loadBookings() {
-            const saved = localStorage.getItem('allBookings');
-            bookings = saved ? JSON.parse(saved) : [];
-        }
-
-        function saveBookings() {
-            localStorage.setItem('allBookings', JSON.stringify(bookings));
-        }
-
-        // Инициализация
-        loadBookings();
-        setMinDate();
-        renderTimeSlots();
-
-        function setMinDate() {
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            document.getElementById('courseDate').min = tomorrow.toISOString().split('T')[0];
-        }
-
-        // ============ ВКЛАДКИ ============
-        function switchTab(tab) {
-            const tabs = document.querySelectorAll('.tab');
-            tabs.forEach(t => t.classList.remove('active'));
-
-            if (tab === 'user') {
-                tabs[0].classList.add('active');
-                document.getElementById('userTab').classList.remove('hidden');
-                document.getElementById('adminTab').classList.add('hidden');
-            } else {
-                tabs[1].classList.add('active');
-                document.getElementById('userTab').classList.add('hidden');
-                document.getElementById('adminTab').classList.remove('hidden');
-                document.getElementById('adminLoginBox').classList.remove('hidden');
-                document.getElementById('adminPanelBox').classList.add('hidden');
-            }
-        }
-
-        // ============ ВРЕМЕННЫЕ СЛОТЫ ============
-        function renderTimeSlots() {
-            const date = document.getElementById('courseDate').value;
-            const container = document.getElementById('timeSlotsContainer');
-
-            if (!date) {
-                container.innerHTML = '<div style="grid-column: 1/-1; color: #999; text-align: center; padding: 20px;">👆 Сначала выберите дату</div>';
-                return;
-            }
-
-            container.innerHTML = '';
-
-            TIME_SLOTS.forEach(time => {
-                const booked = bookings.filter(b => b.date === date && b.time === time && b.status === 'active').length;
-                const available = MAX_PER_SLOT - booked;
-
-                const btn = document.createElement('div');
-                btn.className = 'time-btn';
-
-                if (available <= 0) {
-                    btn.classList.add('full');
-                    btn.innerHTML = `${time}<br><span class="available">Нет мест</span>`;
+        // ============ ГЛАВНЫЙ КОД ============
+        
+        const ADMIN_CREDENTIALS = {
+            login: 'admin',
+            password: 'admin123'
+        };
+        
+        let bookingSystem = null;
+        
+        // Инициализация при загрузке страницы
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('Страница загружена');
+            
+            // Создаем систему бронирования
+            bookingSystem = new BookingSystem();
+            
+            // Назначаем обработчики на кнопки главной страницы
+            document.getElementById('btnUserInterface').addEventListener('click', openUserInterface);
+            document.getElementById('btnAdminLogin').addEventListener('click', openAdminLogin);
+            
+            // Назначаем обработчики на кнопки в модальном окне
+            document.getElementById('btnLogin').addEventListener('click', adminLogin);
+            document.getElementById('btnCancelLogin').addEventListener('click', closeAdminLogin);
+            
+            // Назначаем обработчики на кнопки в шапках
+            document.getElementById('btnBackToMain1').addEventListener('click', backToMain);
+            document.getElementById('btnBackToMain2').addEventListener('click', backToMain);
+            document.getElementById('btnLogout').addEventListener('click', logout);
+            
+            // Назначаем обработчики в админ-панели
+            document.getElementById('btnCancelEditing').addEventListener('click', cancelEditing);
+            document.getElementById('btnResetForm').addEventListener('click', resetForm);
+            document.getElementById('btnDownloadTemplate').addEventListener('click', downloadTemplate);
+            document.getElementById('btnExportCSV').addEventListener('click', exportToCSV);
+            
+            // Назначаем обработчик на загрузку файла
+            document.getElementById('fileUpload').addEventListener('change', handleFileUpload);
+            
+            // Назначаем обработчики фильтров
+            document.getElementById('searchInput').addEventListener('input', filterBookings);
+            document.getElementById('filterDate').addEventListener('change', filterBookings);
+            document.getElementById('filterStatus').addEventListener('change', filterBookings);
+            
+            // Назначаем обработчик в пользовательском интерфейсе
+            document.getElementById('btnNewBooking').addEventListener('click', resetUserForm);
+            
+            // Назначаем обработчик на форму админа
+            document.getElementById('bookingForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (bookingSystem.isEditing) {
+                    bookingSystem.updateBooking();
                 } else {
-                    btn.innerHTML = `${time}<br><span class="available">${available} мест</span>`;
+                    bookingSystem.createBooking();
                 }
-
-                btn.onclick = function() {
-                    if (available > 0) {
-                        document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('selected'));
-                        btn.classList.add('selected');
-                        document.getElementById('selectedTime').value = time;
-                    }
-                };
-
-                container.appendChild(btn);
             });
+            
+            // Назначаем обработчик на изменение даты в админке
+            document.getElementById('courseDate').addEventListener('change', function() {
+                bookingSystem.renderTimeSlots('timeSlots', 'courseDate', 'selectedTime');
+            });
+            
+            // Назначаем обработчик на форму пользователя
+            document.getElementById('userBookingForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                bookingSystem.createUserBooking();
+            });
+            
+            // Назначаем обработчик на изменение даты у пользователя
+            document.getElementById('userCourseDate').addEventListener('change', function() {
+                bookingSystem.renderTimeSlots('userTimeSlots', 'userCourseDate', 'userSelectedTime');
+            });
+            
+            // Закрытие модального окна по клику вне его
+            document.getElementById('loginModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeAdminLogin();
+                }
+            });
+            
+            console.log('Все обработчики назначены');
+        });
+        
+        // ============ ФУНКЦИИ НАВИГАЦИИ ============
+        
+        function openUserInterface() {
+            console.log('Открытие пользовательского интерфейса');
+            hideAll();
+            document.getElementById('userHeader').style.display = 'block';
+            document.getElementById('userContainer').style.display = 'block';
+            bookingSystem.setupUserInterface();
         }
-
-        // ============ ОТПРАВКА ФОРМЫ ============
-        async function submitBooking() {
-            const fullName = document.getElementById('fullName').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const date = document.getElementById('courseDate').value;
-            const time = document.getElementById('selectedTime').value;
-
-            // Проверки
-            if (!fullName || !email || !date || !time) {
-                showNotification('❌ Заполните все обязательные поля', 'error');
-                return;
-            }
-
-            if (!email.includes('@') || !email.includes('.')) {
-                showNotification('❌ Введите корректный email', 'error');
-                return;
-            }
-
-            // Проверка доступности
-            const booked = bookings.filter(b => b.date === date && b.time === time && b.status === 'active').length;
-            if (booked >= MAX_PER_SLOT) {
-                showNotification('❌ На это время больше нет мест', 'error');
-                return;
-            }
-
-            // Создаём запись
-            const booking = {
-                id: Date.now(),
-                fullName,
-                email,
-                phone,
-                date,
-                time,
-                status: 'active',
-                createdAt: new Date().toISOString()
-            };
-
-            // Сохраняем локально
-            bookings.push(booking);
-            saveBookings();
-
-            // Пробуем отправить в Google Таблицу
-            try {
-                await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(booking)
-                });
-                console.log('✅ Отправлено в Google Таблицу');
-            } catch (error) {
-                console.log('⚠️ Не удалось отправить в Google Таблицу:', error);
-            }
-
-            // Показываем успех
-            document.getElementById('bookingForm').style.display = 'none';
-            document.getElementById('successBox').classList.add('show');
-            showNotification('✅ Вы успешно записаны!', 'success');
-        }
-
-        function resetBookingForm() {
-            document.getElementById('bookingForm').style.display = 'block';
-            document.getElementById('successBox').classList.remove('show');
-            document.getElementById('bookingForm').reset();
-            document.getElementById('selectedTime').value = '';
-            renderTimeSlots();
-        }
-
-        // ============ АДМИН ============
-        function adminLogin() {
-            const login = document.getElementById('loginInput').value.trim();
-            const password = document.getElementById('passwordInput').value.trim();
-
-            if (login === ADMIN.login && password === ADMIN.password) {
-                document.getElementById('adminLoginBox').classList.add('hidden');
-                document.getElementById('adminPanelBox').classList.remove('hidden');
-                renderAdminBookings();
-                showNotification('✅ Вход выполнен', 'success');
-            } else {
-                showNotification('❌ Неверный логин или пароль', 'error');
-            }
-        }
-
-        function adminLogout() {
-            document.getElementById('adminLoginBox').classList.remove('hidden');
-            document.getElementById('adminPanelBox').classList.add('hidden');
+        
+        function openAdminLogin() {
+            console.log('Открытие окна входа');
+            document.getElementById('loginModal').classList.add('show');
+            document.getElementById('loginError').style.display = 'none';
             document.getElementById('loginInput').value = '';
             document.getElementById('passwordInput').value = '';
         }
-
-        function renderAdminBookings() {
-            const searchText = (document.getElementById('searchInput')?.value || '').toLowerCase();
-            const container = document.getElementById('bookingsList');
-
-            let filtered = [...bookings];
-
-            if (searchText) {
-                filtered = filtered.filter(b =>
-                    b.fullName.toLowerCase().includes(searchText) ||
-                    b.email.toLowerCase().includes(searchText) ||
-                    (b.phone || '').includes(searchText) ||
-                    b.date.includes(searchText)
-                );
+        
+        function closeAdminLogin() {
+            document.getElementById('loginModal').classList.remove('show');
+        }
+        
+        function adminLogin() {
+            const login = document.getElementById('loginInput').value.trim();
+            const password = document.getElementById('passwordInput').value.trim();
+            
+            console.log('Попытка входа:', login);
+            
+            if (login === ADMIN_CREDENTIALS.login && password === ADMIN_CREDENTIALS.password) {
+                console.log('Вход успешен');
+                document.getElementById('loginModal').classList.remove('show');
+                hideAll();
+                document.getElementById('adminHeader').style.display = 'block';
+                document.getElementById('adminContainer').style.display = 'block';
+                bookingSystem.setupAdminInterface();
+                showNotification('✅ Вход выполнен успешно', 'success');
+            } else {
+                document.getElementById('loginError').textContent = 'Неверный логин или пароль';
+                document.getElementById('loginError').style.display = 'block';
             }
-
-            filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-            // Статистика
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('totalBookings').textContent = bookings.filter(b => b.status === 'active').length;
-            document.getElementById('todayBookings').textContent = bookings.filter(b => b.date === today && b.status === 'active').length;
-
-            if (filtered.length === 0) {
-                container.innerHTML = '<p style="text-align:center;color:#999;padding:20px;">Нет записей</p>';
+        }
+        
+        function backToMain() {
+            console.log('Возврат на главную');
+            hideAll();
+            document.getElementById('mainPage').style.display = 'flex';
+        }
+        
+        function logout() {
+            backToMain();
+            showNotification('Вы вышли из системы', 'info');
+        }
+        
+        function hideAll() {
+            document.getElementById('mainPage').style.display = 'none';
+            document.getElementById('adminHeader').style.display = 'none';
+            document.getElementById('adminContainer').style.display = 'none';
+            document.getElementById('userHeader').style.display = 'none';
+            document.getElementById('userContainer').style.display = 'none';
+        }
+        
+        function cancelEditing() {
+            bookingSystem.resetForm();
+        }
+        
+        function resetForm() {
+            bookingSystem.resetForm();
+        }
+        
+        function resetUserForm() {
+            document.getElementById('userBookingForm').style.display = 'block';
+            document.getElementById('userBookingForm').reset();
+            document.getElementById('successMessage').classList.remove('show');
+            document.getElementById('userSelectedTime').value = '';
+            bookingSystem.renderTimeSlots('userTimeSlots', 'userCourseDate', 'userSelectedTime');
+        }
+        
+        function filterBookings() {
+            bookingSystem.filterBookings();
+        }
+        
+        // ============ ФУНКЦИИ ЭКСПОРТА/ИМПОРТА ============
+        
+        function downloadTemplate() {
+            const template = 'ФИО;Email;Телефон;Дата;Время\nИванов Иван Иванович;ivanov@mail.ru;+79991234567;2024-12-25;10:00\n';
+            const blob = new Blob(['\uFEFF' + template], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'шаблон_записей.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+            showNotification('📥 Шаблон скачан', 'info');
+        }
+        
+        function exportToCSV() {
+            const bookings = bookingSystem.getActiveBookings();
+            if (bookings.length === 0) {
+                showNotification('Нет данных для экспорта', 'error');
                 return;
             }
-
-            container.innerHTML = filtered.map(b => `
-                <div class="booking-item ${b.status === 'cancelled' ? 'cancelled' : ''}">
-                    <div class="booking-header">
-                        <span class="booking-name">${b.fullName}</span>
-                        <span class="badge ${b.status === 'active' ? 'badge-active' : 'badge-cancelled'}">
-                            ${b.status === 'active' ? 'Активна' : 'Отменена'}
-                        </span>
-                    </div>
-                    <div class="booking-details">
-                        📧 ${b.email}<br>
-                        📞 ${b.phone || 'Не указан'}<br>
-                        📅 ${new Date(b.date).toLocaleDateString('ru-RU')} в ${b.time}
-                    </div>
-                    <div class="booking-actions">
-                        ${b.status === 'active' 
-                            ? `<button class="btn-xs btn-cancel" onclick="cancelBooking(${b.id})">🚫 Отменить</button>`
-                            : `<button class="btn-xs btn-restore" onclick="restoreBooking(${b.id})">✅ Восстановить</button>`
-                        }
-                        <button class="btn-xs btn-delete" onclick="deleteBooking(${b.id})">🗑️ Удалить</button>
-                    </div>
-                </div>
-            `).join('');
+            
+            let csv = '№;ФИО;Email;Телефон;Дата;Время;Дата создания\n';
+            bookings.forEach((b, i) => {
+                csv += `${i + 1};"${b.fullName}";"${b.email}";"${b.phone || ''}";${b.date};${b.time};${new Date(b.createdAt).toLocaleDateString('ru-RU')}\n`;
+            });
+            
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `записи_на_курсы_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            showNotification('📄 CSV файл выгружен', 'success');
         }
-
-        function cancelBooking(id) {
-            if (!confirm('Отменить эту запись?')) return;
-            const booking = bookings.find(b => b.id === id);
-            if (booking) {
-                booking.status = 'cancelled';
-                saveBookings();
-                renderAdminBookings();
-                showNotification('🚫 Запись отменена', 'info');
-            }
+        
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split('\n').filter(line => line.trim());
+                
+                if (lines.length < 2) {
+                    showNotification('Файл пуст или не содержит данных', 'error');
+                    return;
+                }
+                
+                // Пропускаем заголовок
+                let imported = 0;
+                for (let i = 1; i < lines.length; i++) {
+                    const parts = lines[i].split(';');
+                    if (parts.length >= 5) {
+                        const booking = {
+                            id: Date.now() + i,
+                            fullName: parts[0].trim(),
+                            email: parts[1].trim(),
+                            phone: parts[2] ? parts[2].trim() : '',
+                            date: parts[3].trim(),
+                            time: parts[4].trim(),
+                            status: 'active',
+                            createdAt: new Date().toISOString()
+                        };
+                        bookingSystem.bookings.push(booking);
+                        imported++;
+                    }
+                }
+                
+                bookingSystem.saveBookings();
+                bookingSystem.renderBookings();
+                bookingSystem.updateStats();
+                showNotification(`✅ Импортировано ${imported} записей`, 'success');
+            };
+            reader.readAsText(file, 'UTF-8');
         }
-
-        function restoreBooking(id) {
-            const booking = bookings.find(b => b.id === id);
-            if (booking) {
-                booking.status = 'active';
-                saveBookings();
-                renderAdminBookings();
-                showNotification('✅ Запись восстановлена', 'success');
-            }
-        }
-
-        function deleteBooking(id) {
-            if (!confirm('Удалить навсегда?')) return;
-            bookings = bookings.filter(b => b.id !== id);
-            saveBookings();
-            renderAdminBookings();
-            showNotification('🗑️ Запись удалена', 'info');
-        }
-
-        // ============ УВЕДОМЛЕНИЯ ============
+        
         function showNotification(message, type) {
             const notification = document.getElementById('notification');
             notification.textContent = message;
             notification.className = `notification ${type} show`;
-            clearTimeout(notification._timeout);
-            notification._timeout = setTimeout(() => {
+            setTimeout(() => {
                 notification.className = 'notification';
             }, 3000);
         }
-    </script>
-</body>
-</html>
+        
+        // ============ КЛАСС СИСТЕМЫ БРОНИРОВАНИЯ ============
+        
+        class BookingSystem {
+            constructor() {
+                this.bookings = [];
+                this.timeSlots = [
+                    { time: '09:00', capacity: 5 },
+                    { time: '10:00', capacity: 5 },
+                    { time: '11:00', capacity: 3 },
+                    { time: '13:00', capacity: 5 },
+                    { time: '14:00', capacity: 3 },
+                    { time: '15:00', capacity: 5 },
+                    { time: '16:00', capacity: 3 },
+                    { time: '17:00', capacity: 5 },
+                    { time: '18:00', capacity: 3 }
+                ];
+                this.selectedTime = null;
+                this.isEditing = false;
+                this.editingBookingId = null;
+                this.loadBookings();
+            }
+            
+            loadBookings() {
+                try {
+                    const data = localStorage.getItem('courseBookings');
+                    if (data) {
+                        this.bookings = JSON.parse(data);
+                    } else {
+                        this.bookings = [
+                            {
+                                id: 1,
+                                fullName: 'Иванов Иван Иванович',
+                                email: 'ivanov@mail.ru',
+                                phone: '+7 (999) 123-45-67',
+                                date: '2024-12-25',
+                                time: '10:00',
+                                status: 'active',
+                                createdAt: new Date().toISOString()
+                            },
+                            {
+                                id: 2,
+                                fullName: 'Петрова Анна Сергеевна',
+                                email: 'petrova@mail.ru',
+                                phone: '+7 (999) 765-43-21',
+                                date: '2024-12-25',
+                                time: '14:00',
+                                status: 'active',
+                                createdAt: new Date().toISOString()
+                            }
+                        ];
+                        this.saveBookings();
+                    }
+                } catch (error) {
+                    console.error('Ошибка загрузки:', error);
+                    this.bookings = [];
+                }
+            }
+            
+            saveBookings() {
+                localStorage.setItem('courseBookings', JSON.stringify(this.bookings));
+            }
+            
+            setupAdminInterface() {
+                console.log('Настройка админ-интерфейса');
+                this.setMinDate('courseDate');
+                this.renderTimeSlots('timeSlots', 'courseDate', 'selectedTime');
+                this.renderBookings();
+                this.updateStats();
+            }
+            
+            setupUserInterface() {
+                console.log('Настройка пользовательского интерфейса');
+                this.setMinDate('userCourseDate');
+                this.renderTimeSlots('userTimeSlots', 'userCourseDate', 'userSelectedTime');
+            }
+            
+            setMinDate(inputId) {
+                const dateInput = document.getElementById(inputId);
+                if (dateInput) {
+                    const today = new Date();
+                    const tomorrow = new Date(today);
+                    tomorrow.setDate(today.getDate() + 1);
+                    dateInput.min = tomorrow.toISOString().split('T')[0];
+                }
+            }
+            
+           
